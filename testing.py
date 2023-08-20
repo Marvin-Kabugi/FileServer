@@ -15,7 +15,7 @@ try:
     print("Connected to the server")
 
     # Send data to the server (optional)
-    message = f"8;0;23;28;0;24;3;0;\x00"
+    message = ""
     client_socket.send(message.encode())
 
     # Receive data from the server (optional)
