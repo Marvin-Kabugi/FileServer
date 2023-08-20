@@ -1,8 +1,9 @@
 import timeit
 import pytest
-from search import SearchAlgorithms
-from server import load_config_file
-from file import FileReader
+
+from ..search import SearchAlgorithms
+from ..helper_functions import load_config_file
+from ..file import FileReader
 
 def timer(func, file_contents, search_value):
 

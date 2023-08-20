@@ -4,54 +4,9 @@ import os
 import ssl
 from search import SearchAlgorithms
 from file import FileReader
-import time
-import timeit
+import datetime
 
-
-
-
-
-def load_config_file() -> str:
-    """
-    Load the path from the configuration file.
-
-    This function reads the 'config.txt' file located in the same directory as
-    the script and searches for a line starting with 'linuxpath='. If found,
-    it extracts the path following the prefix and returns it.
-
-    Returns:
-        str: The path extracted from the configuration file.
-
-    Note:
-        If the 'config.txt' file is not found or no valid path is found in the
-        file, this function will print appropriate messages and return None.
-
-    Example:
-        If the 'config.txt' file contains a line:
-        linuxpath=/root/mydata.txt
-
-        Calling load_config_file() would return '/root/200k.txt'.
-    """
-    # script_directory = os.path.dirname(os.path.abspath(__file__))
-    script_directory = os.path.abspath(os.getcwd())
-    config = os.path.join(script_directory, 'config.txt')
-    required_path = None
-    ssl_settings = None
-    if os.path.exists(config):
-        try:
-            with open(config, 'r') as con:
-                for line in con:
-                    if line.startswith("linuxpath="):
-                        required_path = line.strip().split('=')[1]
-                    if line.startswith("SSL="):
-                        ssl_settings = line.strip().split("=")[1]
-        except FileNotFoundError:
-            print("File not found")
-    if required_path is None:
-        print("No path found in the config file")
-    else:
-        data_path = required_path
-        return (data_path, ssl_settings)
+from helper_functions import measure_execution_time, load_config_file
 
 
 def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None:
@@ -73,6 +28,14 @@ def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None
         socket.error: If there is an issue with the socket communication.
         ConnectionResetError: If the client connection is reset unexpectedly.
     """
+
+    file_contents = file_reader.file_content 
+    file_contents.sort()
+    file_load_execution_time = measure_execution_time(1, file_reader.on_reread_selector)
+    sort_exection_time = measure_execution_time(1, file_contents.sort)
+
+ 
+
     try:
 
         while True:
@@ -80,45 +43,44 @@ def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None
 
             if not data:
                 break
+
+            if len(data) > 1024:
+                response = 'DATA TOO LARGE\n'
+            elif len(data) == 0:
+                response = 'EMPTY DATA\n'
+
             search_value = data.decode().rstrip("\x00")
-            file_contents = None
+            requesting_ip = client_socket.getpeername()[0]
+            current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            debug_log = f"DEBUG: Search query: '{search_value}', from IP Adress: {requesting_ip}, at: {current_time}"
+            print(debug_log)
+
             response = None
-            if file_reader.reread_on_query:
-                st = time.time()
-                file_contents = file_reader.on_reread_selector()
-                et = time.time()
-                elapsed_time = (et - st) * 1000  # Convert to milliseconds
-                print(elapsed_time, "2")
-                # print(search_value in file_contents)
-                # st_search = time.time()
-                result = SearchAlgorithms().binary_search(file_contents, search_value)
-                response = 'STRING EXISTS\n' if result else 'STRING NOT FOUND\n'
-                # et_search = time.time()
-                # elapsed_search_time = (et_search - st_search) * 1000  # Convert to milliseconds
-                # print(elapsed_search_time)
-                
-            
-            else:
-                st = time.time()
-                file_contents = file_reader.file_content
-                et = time.time()
-                elapsed_time = (et - st) * 1000  # Convert to milliseconds
-                print(elapsed_time, "2")                
-                result = SearchAlgorithms().binary_search(file_contents, search_value)
-                response = 'STRING EXISTS\n' if result else 'STRING NOT FOUND\n'
 
             if file_reader.reread_on_query:
-                print("Measuring actual execution time...")
-                number = 1000
-                actual_execution_time = timeit.timeit(
-                    lambda: SearchAlgorithms().binary_search(file_contents, search_value),
-                    number=number  # You can adjust the number of repetitions for better accuracy
-                )
-                print(f"Actual execution time (ms): {(actual_execution_time * 1000)/number:.4f}")
+                file_contents = file_reader.on_reread_selector()
+                file_contents.sort()
+ 
+                file_load_execution_time = measure_execution_time(1, file_reader.on_reread_selector)
+                sort_exection_time = measure_execution_time(1, file_contents.sort)
+                total = file_load_execution_time + sort_exection_time
+
+
+            result = SearchAlgorithms().binary_search(file_contents, search_value)
+            search_execution_time = measure_execution_time(1, SearchAlgorithms().binary_search, file_contents, search_value)
+
+            if file_reader.reread_on_query:
+                debug_log = f"DEBUG: The total execution time in ms: {total + search_execution_time:.4f}" 
+            else:
+                debug_log = f"DEBUG: The total execution time minus the time spent on sorting, in ms: {file_load_execution_time + search_execution_time:.4f}" 
+
+            print(debug_log)
+
+            response = 'STRING EXISTS\n' if result else 'STRING NOT FOUND\n'          
             client_socket.send(response.encode())
 
     except (socket.error, ConnectionResetError) as e:
-        print(e)
+        raise e
     finally:
         client_socket.close()
 
@@ -138,7 +100,7 @@ def main():
         KeyboardInterrupt: If the server is manually interrupted by the user.
     """
 
-    REREAD_ON_QUERY = True
+    REREAD_ON_QUERY = False
     path, ssl_settings = load_config_file()
     print(path, ssl_settings)
     
@@ -166,7 +128,7 @@ def main():
                 # print(working_dir, "hey",__file__)
                 key = os.path.join(working_dir, 'Keys', 'key.pem')
                 cert = os.path.join(working_dir, 'Keys', 'cert.pem')
-                print(key, "hey", cert)
+                # print(key, "hey", cert)
 
                 context.load_cert_chain(certfile=cert, keyfile=key, password='pass')
                 
@@ -183,8 +145,4 @@ def main():
         server_socket.close()
 
 if __name__ == "__main__":
-    # n = 5
-    # result = timeit.timeit(stmt='main()', globals=globals(), number=n)
-    # print("hey")
-    # print(f'Execution time is {result}')
     main()

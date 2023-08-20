@@ -1,8 +1,8 @@
 import pytest
-
-from file import FileReader
-from server import load_config_file
 import os
+
+from ..file import FileReader
+from ..helper_functions import load_config_file
 
 path = load_config_file()[0]
 

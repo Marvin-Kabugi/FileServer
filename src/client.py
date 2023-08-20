@@ -17,8 +17,6 @@ try:
         server_cert = os.path.join(working_dir, 'cert.pem')
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
-        # print(server_cert)
-        # context.load_verify_locations(cafile=server_cert)
         client_socket = context.wrap_socket(client_socket, server_hostname=HOST)
 
     # connect to the server
@@ -26,7 +24,7 @@ try:
     print("Connected to the server")
 
     # create and send message to the server
-    message="13;0;23;11;0;16;5;0;"
+    message="13;0;23;11;0;16;5;0;\x00"
     client_socket.send(message.encode())
 
     # receive data from the server
