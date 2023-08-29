@@ -2,14 +2,14 @@ import socket
 import threading
 import os
 import ssl
-from search import SearchAlgorithms
-from file import FileReader
 import datetime
+import time
+import concurrent.futures
 
-from helper_functions import measure_execution_time, load_config_file
 
 
-def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None:
+lock = threading.Lock()
+def handle_client(client_socket: socket.socket, file_reader, search_algorithm, timer) -> None:
     """
     Handle communication with a client socket.
 
@@ -29,45 +29,42 @@ def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None
         ConnectionResetError: If the client connection is reset unexpectedly.
     """
 
-    file_contents = file_reader.file_content 
-    file_contents.sort()
-    file_load_execution_time = measure_execution_time(1, file_reader.on_reread_selector)
-    sort_exection_time = measure_execution_time(1, file_contents.sort)
-
- 
+    file_contents = file_reader.file_content
+    with lock:
+        file_contents.sort()
+    file_load_execution_time = timer(1, file_reader.on_reread_selector)
+    sort_exection_time = timer(1, file_contents.sort)
 
     try:
-
         while True:
             data = client_socket.recv(1024)
-
-            if not data:
+            if len(data) == 0:
                 break
 
-            if len(data) > 1024:
-                response = 'DATA TOO LARGE\n'
-            elif len(data) == 0:
-                response = 'EMPTY DATA\n'
-
+            print("starting")
             search_value = data.decode().rstrip("\x00")
             requesting_ip = client_socket.getpeername()[0]
             current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            debug_log = f"DEBUG: Search query: '{search_value}', from IP Adress: {requesting_ip}, at: {current_time}"
+            print(f"DEBUG: REREAD_ON_QUERY: {file_reader.reread_on_query}")
+            debug_log = f"DEBUG: Search query: '{(search_value)}', from IP Adress: {requesting_ip}, at: {current_time}"
             print(debug_log)
 
             response = None
-
             if file_reader.reread_on_query:
                 file_contents = file_reader.on_reread_selector()
-                file_contents.sort()
+                with lock:
+                    file_contents.sort()
+                # print(file_contents)
  
-                file_load_execution_time = measure_execution_time(1, file_reader.on_reread_selector)
-                sort_exection_time = measure_execution_time(1, file_contents.sort)
+                file_load_execution_time = timer(1, file_reader.on_reread_selector)
+                # print("file_load_execution_time:", file_load_execution_time)
+                sort_exection_time = timer(1, file_contents.sort)
+                # print("sort_exection_time:",sort_exection_time)
                 total = file_load_execution_time + sort_exection_time
 
 
-            result = SearchAlgorithms().binary_search(file_contents, search_value)
-            search_execution_time = measure_execution_time(1, SearchAlgorithms().binary_search, file_contents, search_value)
+            result = search_algorithm.binary_search(file_contents, search_value)
+            search_execution_time = timer(1, search_algorithm.binary_search, file_contents, search_value)
 
             if file_reader.reread_on_query:
                 debug_log = f"DEBUG: The total execution time in ms: {total + search_execution_time:.4f}" 
@@ -76,16 +73,19 @@ def handle_client(client_socket: socket.socket, file_reader: FileReader) -> None
 
             print(debug_log)
 
-            response = 'STRING EXISTS\n' if result else 'STRING NOT FOUND\n'          
-            client_socket.send(response.encode())
+            response = 'STRING EXISTS\n' if result else 'STRING NOT FOUND\n'     
+            client_socket.sendall(response.encode())
+
 
     except (socket.error, ConnectionResetError) as e:
         raise e
+    # client_socket.close()
+
     finally:
         client_socket.close()
 
 # This function binds and listens for connections from the client
-def main():
+def main(path, ssl_settings, search_algorithm, file_reader, timer, socket_settings):
     """
     Start a server that binds to a port and handles multiple client connections using threading.
 
@@ -100,32 +100,27 @@ def main():
         KeyboardInterrupt: If the server is manually interrupted by the user.
     """
 
-    REREAD_ON_QUERY = False
-    path, ssl_settings = load_config_file()
-    print(path, ssl_settings)
+    ssl_toggle = True if ssl_settings == "True" else False
     
-
     if path is None:
         return
     
-    file_reader = FileReader(path, REREAD_ON_QUERY)
-    HOST = "127.0.0.1"
-    PORT = 65449
 
+    HOST, PORT = socket_settings
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen()
-
-
+    print("listening")
 
     try:
         while True:
             client_socket, addr = server_socket.accept()
-            print(f'client is {addr}')
-            if ssl_settings:
+
+            if ssl_toggle:
+                print(ssl_settings)
                 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
                 working_dir = os.path.dirname(os.path.abspath(__file__))
-                # print(working_dir, "hey",__file__)
+                print(working_dir, "hey",__file__)
                 key = os.path.join(working_dir, 'Keys', 'key.pem')
                 cert = os.path.join(working_dir, 'Keys', 'cert.pem')
                 # print(key, "hey", cert)
@@ -134,8 +129,16 @@ def main():
                 
                 client_socket = context.wrap_socket(client_socket, server_side=True)
 
-            client_thread = threading.Thread(target=handle_client, args=(client_socket, file_reader))
-            client_thread.start()
+            threads = []  
+            try:  
+                client_thread = threading.Thread(target=handle_client, args=(client_socket, file_reader, search_algorithm, timer))
+                threads.append(client_thread)
+                client_thread.start()
+            finally:
+                for thread in threads:
+                    thread.join()
+    
+
 
     except KeyboardInterrupt as e:
         print("Socket closed")
@@ -144,5 +147,8 @@ def main():
     finally:
         server_socket.close()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     path, ssl_settings = load_config_file()
+#     print(type(ssl_settings))
+#     search_algorithm = SearchAlgorithms()
+#     main(path, ssl_settings, search_algorithm)

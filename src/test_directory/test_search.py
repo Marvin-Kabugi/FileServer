@@ -2,17 +2,17 @@ import timeit
 import pytest
 
 from ..search import SearchAlgorithms
-from ..helper_functions import load_config_file
+from ..helper_functions import load_config_file, measure_execution_time
 from ..file import FileReader
 
-def timer(func, file_contents, search_value):
+# def timer(func, file_contents, search_value):
 
-    number = 1000
-    actual_execution_time = timeit.timeit(
-        lambda: func(file_contents, search_value),
-        number=number  # You can adjust the number of repetitions for better accuracy
-    )
-    print(f"Average execution time (ms) of {func}: {(actual_execution_time * 1000)/number:.4f}")
+#     number = 1000
+#     actual_execution_time = timeit.timeit(
+#         lambda: func(file_contents, search_value),
+#         number=number  # You can adjust the number of repetitions for better accuracy
+#     )
+#     print(f"Average execution time (ms) of {func}: {(actual_execution_time * 1000)/number:.4f}")
 
 class TestSearchAlgorithms:
     @classmethod
@@ -37,7 +37,8 @@ class TestSearchAlgorithms:
             value = search_algorithm(self.file_content, search_value)
         print(value)
         # print(self.file_content)
-        timer(search_algorithm, self.file_content, search_value)
+        # timer(search_algorithm, self.file_content, search_value)
+        measure_execution_time(50, search_algorithm, self.file_content, search_value)
 
         if value:
             assert search_value in self.file_content, f"Value '{search_value}' found in content"

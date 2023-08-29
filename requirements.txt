@@ -11,3 +11,20 @@ requests==2.31.0
 tomli==2.0.1
 typing_extensions==4.7.1
 urllib3==2.0.4
+    #   try:
+    #         # self.client_socket.setimeout(5)
+    #         while True:
+    #             try:
+    #                 print('a')
+    #                 data = self.client_socket.recv(1024)
+    #                 print(data)
+    #                 if len(data) == 0:
+    #                     break
+    #                 # print("In client", data.decode())
+    #                 total_data += data.decode()
+    #                 print(data.decode())
+    #             except socket.timeout:
+    #                 break
+    #     except KeyboardInterrupt:
+    #         self.client_socket.close()
+    #     finally:

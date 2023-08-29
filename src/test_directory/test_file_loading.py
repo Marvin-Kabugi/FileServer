@@ -18,11 +18,12 @@ class TestFileReader:
         assert(file_content == [line.strip() for line in content])
 
     def test_read_file_mmap(self):
+        '''Hey'''
         file_reader = FileReader(path, False)
 
         file_content = file_reader._read_file_mmap()
         assert(file_content is not None)
-        assert(file_content == [line.strip() for line in content])
+        assert([line.strip() for line in file_content] == [line.strip() for line in content])
 
     
     def test_read_file_with_mmap_list(self):

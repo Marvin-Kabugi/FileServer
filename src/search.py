@@ -15,13 +15,13 @@ class SearchAlgorithms:
                 
                 mid_point = lower + ((higher-lower) // 2)
 
-                if arr[mid_point] < search_value:
+                if arr[mid_point].strip() < search_value:
                     lower = mid_point + 1
 
-                if arr[mid_point] > search_value:
+                if arr[mid_point].strip() > search_value:
                     higher = mid_point - 1
 
-                if arr[mid_point] == search_value:
+                if arr[mid_point].strip() == search_value:
                     return True
             
 

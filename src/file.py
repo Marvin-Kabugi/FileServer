@@ -44,7 +44,6 @@ class FileReader:
     def _read_file(self):
         try:
             with open(self.path, "r") as file:
-                # print("opening")
                 return [line.strip() for line in file.readlines()]
             
         except FileNotFoundError as e:
@@ -62,10 +61,10 @@ class FileReader:
         """
         try:
             with open(self.path, 'r') as file:
-                # print("opening")
                 with mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as mmapped_file:
                     content = mmapped_file.read()
-                    return content.decode().strip().split('\r\n')
+                    # print(content)
+                    return content.decode().strip().split('\n')
         except FileNotFoundError as e:
             raise e
         
@@ -73,7 +72,6 @@ class FileReader:
     def _read_file_with_mmap_list(self) -> List[str]:
         try:
             with open(self.path, "r") as file:
-                # print("opening")
                 with mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as mmapped_file:
                     lines = []
                     start = 0

@@ -1,4 +1,4 @@
 some_setting=value
 another_setting=123
 linuxpath=/home/200k.txt
-SSL= True
+SSL=False
