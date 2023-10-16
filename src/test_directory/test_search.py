@@ -5,15 +5,6 @@ from ..search import SearchAlgorithms
 from ..helper_functions import load_config_file, measure_execution_time
 from ..file import FileReader
 
-# def timer(func, file_contents, search_value):
-
-#     number = 1000
-#     actual_execution_time = timeit.timeit(
-#         lambda: func(file_contents, search_value),
-#         number=number  # You can adjust the number of repetitions for better accuracy
-#     )
-#     print(f"Average execution time (ms) of {func}: {(actual_execution_time * 1000)/number:.4f}")
-
 class TestSearchAlgorithms:
     @classmethod
     def setup_class(cls):

@@ -6,6 +6,8 @@ from src.client import Client
 
 
 # Server information
+HOST = "127.0.0.1"  # The server's hostname or IP address
+PORT = 65432
 server_ip = "135.181.96.160"  # Replace with the actual IP address
 server_port = 44445      # Replace with the actual port number
 ssl_enabled = False     # SSL is set to False
@@ -13,39 +15,237 @@ REREAD_ON_QUERY = "REREAD_ON_QUERY"
 
 # Create a socket
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# messages = ['heey', '10;0;1;26;0;8;3;0;\x00', '18;0;6;28;0;23;5;0;\x00']
+messages = ['3;0;1;28;0;7;5;0;', '10;0;1;26;0;8;3;0;', '18;0;6;28;0;23;5;0;']
 
-# try:
-#     # Connect to the server
-#     client_socket.connect((server_ip, server_port))
-#     print("Connected to the server")
+messages = ['3;0;1;28;0;7;5;0;', '10;0;1;26;0;8;3;0;', '18;0;6;28;0;23;5;0;', '7;0;1;28;0;9;3;0;', '22;0;6;28;0;23;3;0;', '7;0;6;28;0;23;5;0;', '2;0;1;26;0;7;5;0;', '10;0;1;26;0;7;4;0;', '7;0;1;26;0;8;3;0;', '13;0;1;28;0;7;4;0;', 
+            '3;0;1;16;0;7;5;0;', '13;0;1;26;0;7;3;0;','9;0;1;28;0;8;5;0;', '2;0;23;21;0;22;3;0;', '2;0;6;26;0;24;5;0;', '21;0;1;28;0;8;4;0;', '10;0;1;26;0;9;3;0;', '23;0;1;26;0;8;3;0;', '6;0;1;26;0;7;3;0;', '6;0;1;16;0;7;3;0;',
+            '25;0;23;16;0;19;3;0;', '5;0;1;26;0;8;4;0;', '20;0;1;28;0;6;5;0;', '25;0;1;26;0;9;5;0;', '11;0;6;28;0;23;5;0;']
+# messages = [
+#     "3;0;1;28;0;7;5;0;",
+#     "10;0;1;26;0;8;3;0;",
+#     "18;0;6;28;0;23;5;0;",
+#     "7;0;1;28;0;9;3;0;",
+#     "22;0;6;28;0;23;3;0;",
+#     "7;0;6;28;0;23;5;0;",
+#     "2;0;1;26;0;7;5;0;",
+#     "10;0;1;26;0;7;4;0;",
+#     "7;0;1;26;0;8;3;0;",
+#     "13;0;1;28;0;7;4;0;",
+#     "3;0;1;16;0;7;5;0;",
+#     "13;0;1;26;0;7;3;0;",
+#     "9;0;1;28;0;8;5;0;",
+#     "2;0;23;21;0;22;3;0;",
+#     "2;0;6;26;0;24;5;0;",
+#     "21;0;1;28;0;8;4;0;",
+#     "10;0;1;26;0;9;3;0;",
+#     "23;0;1;26;0;8;3;0;",
+#     "6;0;1;26;0;7;3;0;",
+#     "6;0;1;16;0;7;3;0;",
+#     "25;0;23;16;0;19;3;0;",
+#     "5;0;1;26;0;8;4;0;",
+#     "20;0;1;28;0;6;5;0;",
+#     "25;0;1;26;0;9;5;0;",
+#     "11;0;6;28;0;23;5;0;",
+#     "24;0;6;16;0;7;4;0;",
+#     "5;0;6;26;0;23;5;0;",
+#     "18;0;1;11;0;7;3;0;",
+#     "21;0;6;28;0;22;5;0;",
+#     "24;0;6;28;0;23;5;0;",
+#     "24;0;1;28;0;7;5;0;",
+#     "8;0;1;26;0;8;4;0;",
+#     "19;0;1;11;0;8;5;0;",
+#     "17;0;1;28;0;8;5;0;",
+#     "14;0;1;26;0;8;3;0;",
+#     "21;0;1;28;0;8;3;0;",
+#     "24;0;1;16;0;7;4;0;",
+#     "4;0;6;16;0;17;5;0;",
+#     "9;0;6;21;0;23;3;0;",
+#     "23;0;1;11;0;7;3;0;",
+#     "20;0;23;21;0;20;3;0;",
+#     "14;0;6;28;0;24;4;0;",
+#     "23;0;1;28;0;7;3;0;",
+#     "6;0;1;11;0;7;5;0;",
+#     "11;0;23;16;0;18;3;0;",
+#     "17;0;1;26;0;8;3;0;",
+#     "1;0;1;16;0;5;5;0;",
+#     "19;0;6;28;0;24;4;0;",
+#     "4;0;6;28;0;24;4;0;",
+#     "24;0;1;26;0;8;4;0;",
+#     "13;0;6;28;0;23;5;0;",
+#     "5;0;1;26;0;9;4;0;",
+#     "20;0;6;11;0;7;3;0;",
+#     "2;0;1;26;0;9;4;0;",
+#     "20;0;23;11;0;19;5;0;",
+#     "13;0;21;16;0;18;3;0;",
+#     "23;0;1;16;0;8;5;0;",
+#     "14;0;1;26;0;9;3;0;",
+#     "10;0;1;16;0;7;4;0;",
+#     "14;0;23;16;0;19;3;0;",
+#     "2;0;1;28;0;22;3;0;",
+#     "19;0;1;28;0;9;4;0;",
+#     "23;0;6;16;0;7;4;0;",
+#     "21;0;1;26;0;7;4;0;",
+#     "16;0;23;28;0;23;3;0;",
+#     "6;0;1;28;0;7;4;0;",
+#     "23;0;6;26;0;24;4;0;",
+#     "17;0;6;28;0;23;4;0;",
+#     "5;0;1;28;0;8;5;0;",
+#     "9;0;1;16;0;7;3;0;",
+#     "25;0;1;26;0;8;3;0;",
+#     "2;0;23;11;0;19;5;0;",
+#     "1;0;1;28;0;22;4;0;",
+#     "11;0;6;6;0;24;4;0;",
+#     "11;0;23;11;0;20;5;0;",
+#     "2;0;1;26;0;7;3;0;",
+#     "12;0;1;26;0;9;5;0;",
+#     "23;0;1;21;0;7;5;0;",
+#     "22;0;6;28;0;23;4;0;",
+#     "6;0;1;28;0;8;3;0;",
+#     "11;0;1;26;0;7;5;0;",
+#     "7;0;6;28;0;20;3;0;",
+#     "8;0;23;16;0;18;3;0;",
+#     "21;0;1;28;0;24;4;0;",
+#     "2;0;1;16;0;7;4;0;",
+#     "10;0;6;28;0;23;5;0;",
+#     "18;0;6;28;0;24;5;0;",
+#     "14;0;23;16;0;18;5;0;",
+#     "22;0;1;11;0;8;5;0;",
+#     "11;0;1;11;0;5;4;0;",
+#     "9;0;1;11;0;9;5;0;",
+#     "14;0;1;28;0;22;3;0;",
+#     "18;0;1;28;0;6;5;0;",
+#     "20;0;23;16;0;18;3;0;",
+#     "23;0;1;26;0;7;3;0;",
+#     "10;0;1;28;0;9;5;0;",
+#     "18;0;1;21;0;7;3;0;",
+#     "13;0;1;28;0;7;3;0;",
+#     "8;0;23;11;0;19;5;0;",
+#     "3;0;1;28;0;23;4;0;"
+# ]
+try:
+    # client_socket.connect((server_ip, server_port))
+    client_socket.connect((HOST, PORT))
+    for message in messages:
+        time.sleep(0.1)
+        client_socket.sendall(message.encode())
+    # client_socket.sendall("10;0;1;26;0;8;3;0;".encode())
+    data = ''
+    # client_socket.settimeout(4.0)
+    while True:
+        # print(client_socket.recv(1024))
+        data1 = client_socket.recv(1024)
+        if not data1:
+            print('hey')
+            break
+        print(data1.decode())
 
-    # Send data to the server (optional)
-    # message = "Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)"
-message = ['3;0;1;28;0;7;5;0;', '10;0;1;26;0;8;3;0;', '18;0;6;28;0;23;5;0;', '7;0;1;28;0;9;3;0;', '22;0;6;28;0;23;3;0;', '7;0;6;28;0;23;5;0;', '2;0;1;26;0;7;5;0;', '10;0;1;26;0;7;4;0;', '7;0;1;26;0;8;3;0;', '13;0;1;28;0;7;4;0;']
-file = FileReader("/home/jmarvin/Development/Projects/AlgorithmicSciences/Files/10000.txt",True)
-    # for s_message in file.file_content[10:20]:
-    #             # print(s_message)y
-    #     time.sleep(0.2)
-    #     client_socket.send(s_message.encode())
-    # client_socket.send(message.encode())
-#     client_socket.sendall(b'')
-#     data_x = ''
-#     while True:
-#     # Receive data from the server (optional)
-#         data = client_socket.recv(1024)
-#         if len(data) <= 0:
-#             break
-#         data_x += data.decode()
-#         print(data.decode())
-#     # print("Received from server:", data_x)
-#     # print("j")
-# except socket.error as e:
-#     print("Error:", e)
+except socket.error as e:
+    print('Error', e)
 
-# finally:
-#     # Close the socket
-#     client_socket.close()
-#     print("Socket closed")
+finally:
+    client_socket.shutdown(socket.SHUT_WR)
+    client_socket.close()
 
-client = Client(server_ip, server_port)
-(client.send_message(file.file_content))
+# messages = [
+#     "3;0;1;28;0;7;5;0;",
+#     "10;0;1;26;0;8;3;0;",
+#     "18;0;6;28;0;23;5;0;",
+#     "7;0;1;28;0;9;3;0;",
+#     "22;0;6;28;0;23;3;0;",
+#     "7;0;6;28;0;23;5;0;",
+#     "2;0;1;26;0;7;5;0;",
+#     "10;0;1;26;0;7;4;0;",
+#     "7;0;1;26;0;8;3;0;",
+#     "13;0;1;28;0;7;4;0;",
+#     "3;0;1;16;0;7;5;0;",
+#     "13;0;1;26;0;7;3;0;",
+#     "9;0;1;28;0;8;5;0;",
+#     "2;0;23;21;0;22;3;0;",
+#     "2;0;6;26;0;24;5;0;",
+#     "21;0;1;28;0;8;4;0;",
+#     "10;0;1;26;0;9;3;0;",
+#     "23;0;1;26;0;8;3;0;",
+#     "6;0;1;26;0;7;3;0;",
+#     "6;0;1;16;0;7;3;0;",
+#     "25;0;23;16;0;19;3;0;",
+#     "5;0;1;26;0;8;4;0;",
+#     "20;0;1;28;0;6;5;0;",
+#     "25;0;1;26;0;9;5;0;",
+#     "11;0;6;28;0;23;5;0;",
+#     "24;0;6;16;0;7;4;0;",
+#     "5;0;6;26;0;23;5;0;",
+#     "18;0;1;11;0;7;3;0;",
+#     "21;0;6;28;0;22;5;0;",
+#     "24;0;6;28;0;23;5;0;",
+#     "24;0;1;28;0;7;5;0;",
+#     "8;0;1;26;0;8;4;0;",
+#     "19;0;1;11;0;8;5;0;",
+#     "17;0;1;28;0;8;5;0;",
+#     "14;0;1;26;0;8;3;0;",
+#     "21;0;1;28;0;8;3;0;",
+#     "24;0;1;16;0;7;4;0;",
+#     "4;0;6;16;0;17;5;0;",
+#     "9;0;6;21;0;23;3;0;",
+#     "23;0;1;11;0;7;3;0;",
+#     "20;0;23;21;0;20;3;0;",
+#     "14;0;6;28;0;24;4;0;",
+#     "23;0;1;28;0;7;3;0;",
+#     "6;0;1;11;0;7;5;0;",
+#     "11;0;23;16;0;18;3;0;",
+#     "17;0;1;26;0;8;3;0;",
+#     "1;0;1;16;0;5;5;0;",
+#     "19;0;6;28;0;24;4;0;",
+#     "4;0;6;28;0;24;4;0;",
+#     "24;0;1;26;0;8;4;0;",
+#     "13;0;6;28;0;23;5;0;",
+#     "5;0;1;26;0;9;4;0;",
+#     "20;0;6;11;0;7;3;0;",
+#     "2;0;1;26;0;9;4;0;",
+#     "20;0;23;11;0;19;5;0;",
+#     "13;0;21;16;0;18;3;0;",
+#     "23;0;1;16;0;8;5;0;",
+#     "14;0;1;26;0;9;3;0;",
+#     "10;0;1;16;0;7;4;0;",
+#     "14;0;23;16;0;19;3;0;",
+#     "2;0;1;28;0;22;3;0;",
+#     "19;0;1;28;0;9;4;0;",
+#     "23;0;6;16;0;7;4;0;",
+#     "21;0;1;26;0;7;4;0;",
+#     "16;0;23;28;0;23;3;0;",
+#     "6;0;1;28;0;7;4;0;",
+#     "23;0;6;26;0;24;4;0;",
+#     "17;0;6;28;0;23;4;0;",
+#     "5;0;1;28;0;8;5;0;",
+#     "9;0;1;16;0;7;3;0;",
+#     "25;0;1;26;0;8;3;0;",
+#     "2;0;23;11;0;19;5;0;",
+#     "1;0;1;28;0;22;4;0;",
+#     "11;0;6;6;0;24;4;0;",
+#     "11;0;23;11;0;20;5;0;",
+#     "2;0;1;26;0;7;3;0;",
+#     "12;0;1;26;0;9;5;0;",
+#     "23;0;1;21;0;7;5;0;",
+#     "22;0;6;28;0;23;4;0;",
+#     "6;0;1;28;0;8;3;0;",
+#     "11;0;1;26;0;7;5;0;",
+#     "7;0;6;28;0;20;3;0;",
+#     "8;0;23;16;0;18;3;0;",
+#     "21;0;1;28;0;24;4;0;",
+#     "2;0;1;16;0;7;4;0;",
+#     "10;0;6;28;0;23;5;0;",
+#     "18;0;6;28;0;24;5;0;",
+#     "14;0;23;16;0;18;5;0;",
+#     "22;0;1;11;0;8;5;0;",
+#     "11;0;1;11;0;5;4;0;",
+#     "9;0;1;11;0;9;5;0;",
+#     "14;0;1;28;0;22;3;0;",
+#     "18;0;1;28;0;6;5;0;",
+#     "20;0;23;16;0;18;3;0;",
+#     "23;0;1;26;0;7;3;0;",
+#     "10;0;1;28;0;9;5;0;",
+#     "18;0;1;21;0;7;3;0;",
+#     "13;0;1;28;0;7;3;0;",
+#     "8;0;23;11;0;19;5;0;",
+#     "3;0;1;28;0;23;4;0;"
+# ]

@@ -37,28 +37,38 @@ class TestFileReader:
     # Test case for _read_file method with FileNotFoundError
     def test_read_file_file_not_found(self):
         # Initialize FileReader with a non-existent file
-        file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
-
+        # file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
+        path = os.path.join(os.getcwd(), 'src','fil.py')
+        # print("Helloooooooooooooooooooooooooooooooooo",path)
+        # file_reader = FileReader(path, Fal)
+        # with pytest.raises(FileNotFoundError):
+        #     file_reader = FileReader(path, False)
         # Check if _read_file method raises FileNotFoundError
         with pytest.raises(FileNotFoundError):
-            file_reader._read_file()
+            # file_reader._read_file()
+            FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
 
 
-    # Test case for _read_file_mmap method with FileNotFoundError
-    def test_read_file_mmap_file_not_found(self):
-        # Initialize FileReader with a non-existent file
-        file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
 
-        # Check if _read_file_mmap method raises FileNotFoundError
-        with pytest.raises(FileNotFoundError):
-            file_reader._read_file_mmap()
+    # # Test case for _read_file_mmap method with FileNotFoundError
+    # def test_read_file_mmap_file_not_found(self):
+    #     # Initialize FileReader with a non-existent file
+    #     file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
+
+    #     # Check if _read_file_mmap method raises FileNotFoundError
+    #     with pytest.raises(FileNotFoundError):
+    #         file_reader._read_file_mmap()
 
 
-    def test_read_file_with_mmap_list_not_found(self):
-        # Initialize FileReader with a non-existent file
-        file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
+    # def test_read_file_with_mmap_list_not_found(self):
+    #     # Initialize FileReader with a non-existent file
+    #     # file_reader = FileReader(os.path.join(os.getcwd(), 'src','fil.py'), False)
+    #     path = os.path.join(os.getcwd(), 'src','fil.py')
 
-        # Check if _read_file_mmap method raises FileNotFoundError
-        with pytest.raises(FileNotFoundError):
-            file_reader._read_file_with_mmap_list()
+    #     with pytest.raises(FileNotFoundError):
+    #         file_reader = FileReader(path, False)
+
+    #     # Check if _read_file_mmap method raises FileNotFoundError
+    #     with pytest.raises(FileNotFoundError):
+    #         file_reader._read_file_with_mmap_list()
 

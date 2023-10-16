@@ -25,7 +25,7 @@ class SearchAlgorithms:
                     return True
             
 
-    def linear_search(self, arr: List[str], search_value: str) -> str:
+    def linear_search(self, arr: List[str], search_value: str) -> bool:
         if arr:
             for line in arr:
                 if line.strip() == search_value:
@@ -34,7 +34,7 @@ class SearchAlgorithms:
 
         
 
-    def search_using_regex(self, arr: List[str], search_value: str) -> str:
+    def search_using_regex(self, arr: List[str], search_value: str):
         if arr:
             for line in arr:
                 if re.fullmatch(f'^{search_value}$', line.strip()):
@@ -43,7 +43,7 @@ class SearchAlgorithms:
 
         
     
-    def hash_table_search(self, arr: List[str], search_value: str) -> str:
+    def hash_table_search(self, arr: List[str], search_value: str) -> bool:
         if arr:
             hash_table = {}
 
@@ -56,7 +56,7 @@ class SearchAlgorithms:
         return False
         
         
-    def grep_search(path: str, search_value: str):
+    def grep_search(self, path: str, search_value: str):
         command = f"grep ^{search_value}$ {path}"
         value = os.system(command)
         print(value)

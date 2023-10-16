@@ -38,6 +38,7 @@ def load_config_file() -> str:
     config = os.path.join(script_directory, 'config.txt')
     required_path = None
     ssl_settings = None
+
     if os.path.exists(config):
         try:
             with open(config, 'r') as con:
@@ -48,7 +49,7 @@ def load_config_file() -> str:
                         ssl_settings = line.strip().split("=")[1]
         except FileNotFoundError as e:
             print("File not found")
-            raise e
+        
     if required_path is None:
         print("No path found in the config file")
     else:
@@ -82,6 +83,7 @@ def load_test_file() -> str:
     config = os.path.join(script_directory, 'config.txt')
     test_directory = os.path.join(script_directory, 'Files')
     ssl_settings = None
+
     if os.path.exists(config):
         try:
             with open(config, 'r') as con:
@@ -91,10 +93,10 @@ def load_test_file() -> str:
         except FileNotFoundError as e:
             print("File not found")
             raise e
+        
     if test_directory is None:
         print("No path found in the config file")
     else:
-    
         return (test_directory, ssl_settings)  
 
 def load_test_files() -> str:

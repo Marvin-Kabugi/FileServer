@@ -4,7 +4,7 @@ import os
 import time
 
 HOST = "127.0.0.1"  # The server's hostname or IP address
-PORT = 65443
+PORT = 65432
 
 class Client:
     def __init__(self, host, port) -> None:
@@ -21,37 +21,42 @@ class Client:
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE
             self.client_socket = context.wrap_socket(self.client_socket, server_hostname=HOST)
-            
-        # try:
-        self.client_socket.connect((self.host, self.port))
 
-        if isinstance(message, list):
-            print(message[:10])
-            for s_message in message[:20]:
-                # print(s_message)
-                time.sleep(0.5)
-                self.client_socket.sendall(s_message.encode())
-        else:
-            self.client_socket.sendall(message.encode())
         total_data = ''
-        while True:
-            try:
+            
+        try:
+            self.client_socket.connect((self.host, self.port))
+
+            if isinstance(message, list):
+                for s_message in message:
+                    # time.sleep(0.1)
+                    self.client_socket.sendall(s_message.encode())
+            else:
+                self.client_socket.sendall(message.encode())
+
+            self.client_socket.settimeout(5.0)
+
+            while True:
                 data = self.client_socket.recv(1024)
-                if len(data) <= 0:
+                if not data:
                     break
                 total_data += data.decode()
-                print(data.decode())
-            except KeyboardInterrupt:
-                self.client_socket.close()
-            finally:
-                return total_data
+                # print(data.decode())
+        except KeyboardInterrupt:
+            pass
+                    # self.client_socket.close()
+        finally:
+            self.client_socket.close()
+            return total_data
 
 
 
 if __name__ == "__main__":
     client = Client(HOST, PORT)
-    print(client.send_message("4;0;1;28;0;5;3;0;\x00"))
-
+    messages = ['3;0;1;28;0;7;5;0;', '10;0;1;26;0;8;3;0;', '18;0;6;28;0;23;5;0;', '7;0;1;28;0;9;3;0;', '22;0;6;28;0;23;3;0;', '7;0;6;28;0;23;5;0;', '2;0;1;26;0;7;5;0;', '10;0;1;26;0;7;4;0;', '7;0;1;26;0;8;3;0;', '13;0;1;28;0;7;4;0;']
+    print(client.send_message(messages))
+    # client.send_message(messages)
+    # "4;0;1;28;0;5;3;0;\x00"
 
 # SSL = True  # The port used by the server
 
@@ -96,4 +101,3 @@ if __name__ == "__main__":
 #     client_socket.close()
 #     print("Socket Closed")
 
-# Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)Receive data from the server (optional)
